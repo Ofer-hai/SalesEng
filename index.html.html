@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SalesEng">
+<meta name="theme-color" content="#0d0f14">
+<title>SalesEng CRM</title>
+
+<!-- PWA Icons (inline SVG data URIs) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='36' fill='%23f97316'/%3E%3Ctext x='50%25' y='58%25' font-family='system-ui' font-weight='900' font-size='90' fill='white' text-anchor='middle' dominant-baseline='middle'%3ESE%3C/text%3E%3C/svg%3E">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+
+:root {
+  --bg: #0d0f14;
+  --s1: #13161e;
+  --s2: #1a1e2a;
+  --s3: #212535;
+  --s4: #2a2f42;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --accent: #f97316;
+  --accent2: #fb923c;
+  --adim: rgba(249,115,22,0.15);
+  --aglow: 0 0 24px rgba(249,115,22,0.35);
+  --blue: #3b82f6;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --t1: #f1f5f9;
+  --t2: #94a3b8;
+  --t3: #475569;
+  --r: 14px;
+  --rsm: 9px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; overflow: hidden; font-size: 16px; }
+body { 
+  height: 100%; background: var(--bg); color: var(--t1); 
+  font-family: 'Heebo', -apple-system, sans-serif; 
+  overflow: hidden; -webkit-overflow-scrolling: touch;
+  -webkit-text-size-adjust: 100%;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: 'Heebo', sans-serif; cursor: pointer; border: none; background: none; }
+input, textarea, select { font-family: 'Heebo', sans-serif; direction: rtl; }
+select option { background: var(--s2); }
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-thumb { background: var(--s4); border-radius: 3px; }
+
+/* ── APP SHELL ── */
+#app { 
+  display: flex; flex-direction: column; height: 100vh;
+  max-width: 430px; margin: 0 auto; 
+  background: var(--bg);
+  position: relative;
+}
+
+/* ── HEADER ── */
+.hdr {
+  flex-shrink: 0;
+  padding: calc(var(--safe-top) + 12px) 18px 12px;
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 10;
+}
+.hdr-logo { display: flex; align-items: center; gap: 10px; }
+.hdr-mark { 
+  width: 36px; height: 36px; background: var(--accent); border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 13px; color: white; letter-spacing: -0.5px;
+  box-shadow: var(--aglow);
+}
+.hdr-title { font-size: 16px; font-weight: 800; color: var(--t1); }
+.hdr-sub { font-size: 10px; color: var(--t3); }
+.hdr-btn { 
+  width: 36px; height: 36px; border-radius: 9px; border: 1px solid var(--border);
+  background: var(--s2); display: flex; align-items: center; justify-content: center;
+  color: var(--t2);
+}
+
+/* ── SCROLL AREA ── */
+.scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+
+/* ── NAV ── */
+.nav { 
+  flex-shrink: 0;
+  display: flex; background: var(--s1); border-top: 1px solid var(--border);
+  padding: 6px 0 calc(6px + var(--safe-bottom));
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 7px 4px; color: var(--t3); transition: color 0.2s;
+  font-size: 10px; font-weight: 700;
+}
+.nav-btn.active { color: var(--accent); }
+.nav-btn svg { display: block; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; 
+  bottom: calc(72px + var(--safe-bottom)); 
+  left: 18px;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: white;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--aglow), 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 30; transition: transform 0.12s;
+}
+.fab:active { transform: scale(0.92); }
+
+/* ── SECTIONS ── */
+.sec { padding: 18px; }
+.sec-title { 
+  font-size: 10px; font-weight: 800; color: var(--t3); 
+  letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 12px;
+}
+.pb-nav { padding-bottom: calc(85px + var(--safe-bottom)); }
+
+/* ── CARDS ── */
+.card {
+  background: var(--s1); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  transition: border-color 0.15s;
+}
+.card + .card { margin-top: 10px; }
+.card:active { border-color: var(--border2); }
+
+/* ── TASK CARD ── */
+.tc { padding: 15px; display: flex; flex-direction: column; gap: 11px; }
+.tc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.tc-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tc-name { font-size: 15px; font-weight: 800; color: var(--t1); margin-top: 5px; line-height: 1.3; }
+.tc-desc { font-size: 13px; color: var(--t2); line-height: 1.65; }
+.tc-action {
+  background: var(--s2); border: 1px solid var(--border); border-radius: var(--rsm);
+  padding: 9px 11px; font-size: 12px; color: var(--t2); 
+  display: flex; gap: 7px; align-items: flex-start; line-height: 1.5;
+}
+.tc-footer { display: flex; gap: 7px; border-top: 1px solid var(--border); padding-top: 11px; }
+.tc-img { width: 100%; max-height: 160px; object-fit: cover; border-radius: var(--rsm); border: 1px solid var(--border); }
+
+/* ── BADGES ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 800; padding: 3px 8px; 
+  border-radius: 20px; letter-spacing: 0.2px;
+}
+.dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 9px 12px; border-radius: var(--rsm);
+  border: 1px solid var(--border); background: var(--s2); color: var(--t2);
+  font-size: 12px; font-weight: 700; transition: all 0.12s;
+  white-space: nowrap;
+}
+.btn:active { opacity: 0.75; }
+.btn.flex1 { flex: 1; }
+.btn.accent { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+.btn.green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: var(--green); }
+.btn.danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); color: var(--red); }
+.btn.primary-full {
+  width: 100%; background: var(--accent); color: white; font-size: 15px; font-weight: 800;
+  padding: 14px; border-radius: var(--r); border: none; margin-top: 6px;
+  box-shadow: var(--aglow);
+}
+.btn.primary-full:active { transform: scale(0.98); }
+.icon-btn {
+  width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--s2); display: flex; align-items: center; justify-content: center;
+  color: var(--t2); flex-shrink: 0;
+}
+.icon-btn.accent { background: var(--adim); border-color: rgba(249,115,22,0.3); color: var(--accent); }
+.icon-btn.green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); color: var(--green); }
+
+/* ── HERO ── */
+.hero { 
+  padding: 20px 18px 18px;
+  background: linear-gradient(160deg, var(--s1) 0%, var(--s2) 100%);
+  border-bottom: 1px solid var(--border);
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; top: -50px; left: -30px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hero-greet { font-size: 13px; color: var(--t3); margin-bottom: 3px; }
+.hero-name { font-size: 23px; font-weight: 900; color: var(--t1); }
+.hero-stats { font-size: 13px; color: var(--t2); margin-top: 5px; }
+.hero-date { font-size: 11px; color: var(--t3); margin-top: 8px; }
+
+/* ── STATS GRID ── */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat { 
+  background: var(--s1); border: 1px solid var(--border); 
+  border-radius: var(--r); padding: 15px;
+}
+.stat-num { font-size: 30px; font-weight: 900; margin: 4px 0; }
+.stat-lbl { font-size: 11px; color: var(--t3); font-weight: 500; }
+
+/* ── SEARCH ── */
+.search-wrap { padding: 0 18px 14px; position: relative; }
+.search-inp {
+  width: 100%; background: var(--s1); border: 1px solid var(--border);
+  border-radius: var(--rsm); padding: 10px 14px 10px 38px;
+  color: var(--t1); font-size: 13px; direction: rtl;
+}
+.search-inp::placeholder { color: var(--t3); }
+.search-inp:focus { outline: none; border-color: var(--border2); }
+.search-icon { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: var(--t3); pointer-events: none; }
+
+/* ── CHIPS ── */
+.chips { display: flex; gap: 6px; overflow-x: auto; padding: 0 18px 12px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex-shrink: 0; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  border: 1px solid var(--border); background: var(--s2); color: var(--t2);
+  transition: all 0.12s;
+}
+.chip.active { background: var(--adim); border-color: var(--accent); color: var(--accent); }
+
+/* ── FORM ── */
+.form-label { 
+  display: block; font-size: 10px; font-weight: 800; color: var(--t3); 
+  letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 6px; 
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: var(--s2); border: 1px solid var(--border);
+  border-radius: var(--rsm); padding: 11px 13px;
+  color: var(--t1); font-size: 14px; direction: rtl;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none; border-color: var(--accent); 
+  box-shadow: 0 0 0 3px rgba(249,115,22,0.1);
+}
+.form-textarea { min-height: 90px; resize: none; line-height: 1.65; }
+.form-group { margin-bottom: 14px; }
+.inp-wrap { position: relative; }
+.inp-wrap .form-input { padding-left: 42px; }
+.inp-mic {
+  position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--s3); color: var(--t2);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.inp-mic.rec { background: rgba(239,68,68,0.2); color: var(--red); }
+.textarea-wrap { position: relative; }
+.textarea-wrap .form-textarea { padding-left: 42px; }
+.textarea-mic {
+  position: absolute; left: 8px; bottom: 10px;
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--s3); color: var(--t2);
+  display: flex; align-items: center; justify-content: center;
+}
+.textarea-mic.rec { background: rgba(239,68,68,0.2); color: var(--red); }
+
+/* ── MODAL ── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+  z-index: 50; display: flex; align-items: flex-end; justify-content: center;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.18s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } }
+.modal {
+  background: var(--s1); width: 100%; max-width: 430px;
+  border-radius: 22px 22px 0 0; 
+  padding: 0 0 calc(20px + var(--safe-bottom));
+  max-height: 93vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border2); border-bottom: none;
+  animation: slideUp 0.28s cubic-bezier(0.34,1.4,0.64,1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } }
+.modal-handle { width: 36px; height: 4px; background: var(--s4); border-radius: 2px; margin: 14px auto 0; }
+.modal-hdr { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-title { font-size: 18px; font-weight: 900; color: var(--t1); }
+.modal-body { padding: 18px; }
+.modal-sec-title { font-size: 10px; font-weight: 800; color: var(--t3); letter-spacing: 1.5px; text-transform: uppercase; margin: 16px 0 8px; }
+.modal-sec-title:first-child { margin-top: 0; }
+
+/* ── CUSTOMER CARD ── */
+.cc { padding: 14px; display: flex; align-items: center; gap: 12px; }
+.cc-av {
+  width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+  background: var(--adim); border: 1px solid rgba(249,115,22,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 800; color: var(--accent);
+}
+.cc-name { font-size: 14px; font-weight: 800; color: var(--t1); }
+.cc-phone { font-size: 11px; color: var(--t3); margin-top: 2px; }
+.cc-note { font-size: 12px; color: var(--t2); margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+.cc-badges { display: flex; gap: 5px; margin-top: 5px; }
+.cc-actions { margin-right: auto; display: flex; gap: 7px; flex-shrink: 0; }
+
+/* ── DETAIL ── */
+.detail-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-size: 10px; font-weight: 800; color: var(--t3); letter-spacing: 1.3px; text-transform: uppercase; margin-bottom: 4px; }
+.detail-val { font-size: 14px; color: var(--t1); line-height: 1.6; }
+
+/* ── CHART RING ── */
+.ring-wrap { position: relative; width: 80px; height: 80px; }
+.ring-text { 
+  position: absolute; inset: 0; display: flex; flex-direction: column; 
+  align-items: center; justify-content: center; 
+  font-size: 16px; font-weight: 900; color: var(--t1);
+}
+.ring-sub { font-size: 9px; color: var(--t3); font-weight: 600; }
+
+/* ── BAR ── */
+.bar-track { height: 5px; background: var(--s3); border-radius: 3px; overflow: hidden; margin-top: 5px; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.6s ease; }
+
+/* ── PRIORITY ── */
+.p-high { color: var(--red); }
+.p-mid { color: var(--amber); }
+.p-low { color: var(--green); }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 60px 20px; }
+.empty-ico { font-size: 44px; margin-bottom: 14px; }
+.empty-t { font-size: 15px; font-weight: 700; color: var(--t2); }
+.empty-s { font-size: 12px; color: var(--t3); margin-top: 6px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; top: calc(var(--safe-top) + 80px); left: 50%; transform: translateX(-50%);
+  background: var(--red); color: white; padding: 9px 20px; border-radius: 24px;
+  font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+  z-index: 100; box-shadow: 0 4px 24px rgba(239,68,68,0.4);
+  animation: recPulse 1s infinite;
+}
+@keyframes recPulse { 0%,100%{opacity:1}50%{opacity:0.7} }
+.rec-dot { width: 8px; height: 8px; background: white; border-radius: 50%; }
+
+/* ── IMAGE UPLOAD ── */
+.img-upload {
+  border: 2px dashed var(--border2); border-radius: var(--r);
+  padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: all 0.15s;
+}
+.img-upload:hover, .img-upload:active { border-color: var(--accent); background: var(--adim); }
+.img-upload-txt { font-size: 12px; color: var(--t3); }
+.img-preview { width: 100%; height: 140px; object-fit: cover; border-radius: var(--rsm); border: 1px solid var(--border); margin-top: 8px; }
+
+/* ── UTILS ── */
+.row { display: flex; align-items: center; gap: 8px; }
+.row-between { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.col { display: flex; flex-direction: column; }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-mark">SE</div>
+      <div>
+        <div class="hdr-title">SalesEng CRM</div>
+        <div class="hdr-sub">Field Sales Manager</div>
+      </div>
+    </div>
+    <button class="hdr-btn" onclick="showTab('reports')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    </button>
+  </header>
+
+  <!-- SCROLL -->
+  <div class="scroll" id="mainScroll">
+    <div id="tab-dashboard" class="tab pb-nav"></div>
+    <div id="tab-tasks" class="tab hidden pb-nav"></div>
+    <div id="tab-customers" class="tab hidden pb-nav"></div>
+    <div id="tab-reports" class="tab hidden pb-nav"></div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" id="fab" onclick="openFab()">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <button class="nav-btn active" id="nav-dashboard" onclick="showTab('dashboard')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2zM9 22V12h6v10"/></svg>
+      <span>בית</span>
+    </button>
+    <button class="nav-btn" id="nav-tasks" onclick="showTab('tasks')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>משימות</span>
+    </button>
+    <button class="nav-btn" id="nav-customers" onclick="showTab('customers')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>לקוחות</span>
+    </button>
+    <button class="nav-btn" id="nav-reports" onclick="showTab('reports')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span>דוחות</span>
+    </button>
+  </nav>
+</div>
+
+<!-- MODALS container -->
+<div id="modals"></div>
+
+<!-- RECORDING TOAST -->
+<div class="toast hidden" id="recToast"><div class="rec-dot"></div> מקשיב... דבר עכשיו</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  DATABASE
+// ═══════════════════════════════════════════════════
+const DB = {
+  get(k, d=[]) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set(k,v) { localStorage.setItem(k, JSON.stringify(v)); }
+};
+
+const CATS = ["מדחסי אוויר","מחוללי חנקן/חמצן","משאבות","מנועים חשמליים"];
+const STATUSES = ["פתוח","בטיפול","הושלם","בוטל"];
+const CAT_ICON = {"מדחסי אוויר":"💨","מחוללי חנקן/חמצן":"⚗️","משאבות":"🔧","מנועים חשמליים":"⚡"};
+const STATUS_COLOR = {"פתוח":"#f59e0b","בטיפול":"#3b82f6","הושלם":"#10b981","בוטל":"#6b7280"};
+
+function seed() {
+  if (DB.get('seeded', false)) return;
+  DB.set('customers', [
+    {id:'c1',name:'מפעל פלדה אשדוד',phone:'050-1234567',email:'info@steel-ashdod.co.il',address:'אשדוד, אזור תעשייה',notes:'לקוח VIP - מחזור שנתי גבוה'},
+    {id:'c2',name:'כימיקלים תרופות בע"מ',phone:'052-7654321',email:'ops@pharmchem.co.il',address:'רחובות, רחוב המדע 14',notes:'דורש אישורי FDA לכל ציוד'},
+    {id:'c3',name:'נמל אשדוד - אחזקה',phone:'054-9876543',email:'maint@ashdodport.co.il',address:'נמל אשדוד',notes:'פגישות רק בבקרים'},
+    {id:'c4',name:'מפעל מזון גבעתיים',phone:'053-1122334',email:'tech@giv-food.co.il',address:'גבעתיים, התעשייה 5',notes:''}
+  ]);
+  DB.set('tasks', [
+    {id:'t1',customerId:'c1',customerName:'מפעל פלדה אשדוד',phone:'050-1234567',category:'מדחסי אוויר',description:'רעשים חריגים במדחס הראשי Atlas Copco GA-55. חשד לבלאי במיסבים.',actionItems:'לשלוח הצעת מחיר לתיקון + אחסון חלפים',callSummary:'מנהל האחזקה אמר שזה דחוף - יש עצירה בייצור',status:'בטיפול',priority:'גבוהה',imageUrl:null,date:new Date().toLocaleDateString('he-IL'),createdAt:Date.now()-172800000},
+    {id:'t2',customerId:'c2',customerName:'כימיקלים תרופות בע"מ',phone:'052-7654321',category:'מחוללי חנקן/חמצן',description:'בירור ציוד - מחולל חנקן בספיקה 200Nm³/h, טוהר 99.9%',actionItems:'להכין הצעת מחיר ל-PSA Nitrogen Generator',callSummary:'שיחה ראשונית - פוטנציאל גבוה',status:'פתוח',priority:'בינונית',imageUrl:null,date:new Date(Date.now()-86400000).toLocaleDateString('he-IL'),createdAt:Date.now()-86400000},
+    {id:'t3',customerId:'c3',customerName:'נמל אשדוד - אחזקה',phone:'054-9876543',category:'משאבות',description:'תחלופת משאבת ביוב Grundfos SE3 - קורוזיה קשה בגוף',actionItems:'הוזמן ציוד - לתאם התקנה עם טכנאי',callSummary:'אישרו הזמנה, ממתינים לאספקה',status:'הושלם',priority:'גבוהה',imageUrl:null,date:new Date(Date.now()-259200000).toLocaleDateString('he-IL'),createdAt:Date.now()-259200000}
+  ]);
+  DB.set('seeded', true);
+}
+
+// State
+let tasks = [];
+let customers = [];
+let currentTab = 'dashboard';
+let taskFilter = {status:'הכל', cat:'הכל', q:''};
+let cusSearch = '';
+let recognition = null;
+let isRecording = false;
+
+// ═══════════════════════════════════════════════════
+//  SPEECH
+// ═══════════════════════════════════════════════════
+function initSpeech() {
+  const SR = window.webkitSpeechRecognition || window.SpeechRecognition;
+  if (!SR) return;
+  recognition = new SR();
+  recognition.lang = 'he-IL';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+}
+
+function listen(onResult) {
+  if (!recognition) { alert('הדפדפן לא תומך בתמלול קולי'); return; }
+  isRecording = true;
+  document.getElementById('recToast').classList.remove('hidden');
+  document.querySelectorAll('.inp-mic, .textarea-mic').forEach(b => b.classList.add('rec'));
+  try { recognition.start(); } catch(e) {}
+  recognition.onresult = (e) => {
+    onResult(e.results[0][0].transcript);
+    stopRecording();
+  };
+  recognition.onerror = recognition.onend = stopRecording;
+}
+
+function stopRecording() {
+  isRecording = false;
+  document.getElementById('recToast').classList.add('hidden');
+  document.querySelectorAll('.inp-mic, .textarea-mic').forEach(b => b.classList.remove('rec'));
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.remove('hidden');
+  const navBtn = document.getElementById('nav-' + tab);
+  if (navBtn) navBtn.classList.add('active');
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  if (tab === 'dashboard') renderDashboard();
+  else if (tab === 'tasks') renderTasks();
+  else if (tab === 'customers') renderCustomers();
+  else if (tab === 'reports') renderReports();
+}
+
+function openFab() {
+  if (currentTab === 'customers') openCustomerForm();
+  else openTaskForm();
+}
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function escHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtPhone(p) {
+  if (!p) return '';
+  return p.replace(/^0/, '972').replace(/-/g, '');
+}
+
+function statusBadge(status) {
+  const c = STATUS_COLOR[status] || '#6b7280';
+  return `<span class="badge" style="background:${c}22;color:${c}"><div class="dot" style="background:${c}"></div>${escHtml(status)}</span>`;
+}
+
+function priorityBadge(p) {
+  if (!p || p === 'בינונית') return '';
+  const color = p === 'גבוהה' ? 'var(--red)' : 'var(--green)';
+  const ico = p === 'גבוהה' ? '🔴' : '🟢';
+  return `<span class="badge" style="background:${p==='גבוהה'?'rgba(239,68,68,0.1)':'rgba(16,185,129,0.1)'};color:${color}">${ico} ${escHtml(p)}</span>`;
+}
+
+function taskCard(task, showActions=true) {
+  const sc = STATUS_COLOR[task.status] || '#6b7280';
+  const img = task.imageUrl ? `<img src="${escHtml(task.imageUrl)}" class="tc-img" alt="שטח">` : '';
+  const action = task.actionItems ? `<div class="tc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>${escHtml(task.actionItems)}</span></div>` : '';
+  const doneBtn = task.status !== 'הושלם' ? `<button class="btn flex1 accent" onclick="event.stopPropagation();completeTask('${task.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> בוצע</button>` : '';
+
+  return `
+  <div class="card" onclick="openTaskDetail('${task.id}')">
+    <div class="tc">
+      <div class="tc-top">
+        <div>
+          <div class="tc-meta">
+            <span style="font-size:15px">${CAT_ICON[task.category]||'🔩'}</span>
+            ${statusBadge(task.status)}
+            ${priorityBadge(task.priority)}
+          </div>
+          <div class="tc-name">${escHtml(task.customerName)}</div>
+        </div>
+        <div class="col" style="align-items:flex-end;flex-shrink:0">
+          <span style="font-size:10px;color:var(--t3)">${escHtml(task.date)}</span>
+          <span style="font-size:11px;color:var(--accent);margin-top:3px">${escHtml(task.category)}</span>
+        </div>
+      </div>
+      <div class="tc-desc">${escHtml(task.description)}</div>
+      ${img}
+      ${action}
+      <div class="tc-footer" onclick="event.stopPropagation()">
+        <a href="tel:${escHtml(task.phone)}" class="btn flex1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          ${escHtml(task.phone)}
+        </a>
+        <a href="https://wa.me/${fmtPhone(task.phone)}" target="_blank" class="btn green" style="padding:9px 10px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.655 1.435 5.163L2 22l4.917-1.41A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+        </a>
+        ${doneBtn}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════════
+function renderDashboard() {
+  const open = tasks.filter(t=>t.status==='פתוח').length;
+  const inprog = tasks.filter(t=>t.status==='בטיפול').length;
+  const done = tasks.filter(t=>t.status==='הושלם').length;
+  const urgent = tasks.filter(t=>t.priority==='גבוהה'&&t.status!=='הושלם');
+  const recent = tasks.slice(0,5);
+  const today = new Date().toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const urgentHtml = urgent.length ? `
+    <div class="sec" style="padding-top:0">
+      <div class="sec-title" style="color:var(--red)">⚠️ דחוף - דורש טיפול</div>
+      ${urgent.map(t=>taskCard(t)).join('')}
+    </div>` : '';
+
+  const catBars = CATS.map(cat => {
+    const cnt = tasks.filter(t=>t.category===cat).length;
+    const pct = tasks.length ? Math.min(100, Math.round(cnt/tasks.length*100)) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:16px">${CAT_ICON[cat]}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:var(--t1)">${escHtml(cat)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span style="font-size:13px;font-weight:800;color:var(--t2);min-width:18px;text-align:center">${cnt}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-dashboard').innerHTML = `
+    <div class="hero">
+      <div class="hero-greet">שלום חזרה,</div>
+      <div class="hero-name">מהנדס המכירות 👋</div>
+      <div class="hero-stats">${open} פתוחות · ${inprog} בטיפול · ${done} הושלמו</div>
+      <div class="hero-date">${today}</div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">סקירה מהירה</div>
+      <div class="stats-grid">
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="stat-num" style="color:var(--amber)">${open}</div><div class="stat-lbl">משימות פתוחות</div></div>
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg><div class="stat-num" style="color:var(--blue)">${inprog}</div><div class="stat-lbl">בטיפול</div></div>
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-lbl">הושלמו</div></div>
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><div class="stat-num" style="color:var(--accent)">${customers.length}</div><div class="stat-lbl">לקוחות פעילים</div></div>
+      </div>
+    </div>
+    ${urgentHtml}
+    <div class="sec" style="padding-top:0">
+      <div class="sec-title">ביקורים אחרונים</div>
+      ${recent.length === 0 ? '<div class="empty"><div class="empty-ico">📋</div><div class="empty-t">אין משימות עדיין</div><div class="empty-s">לחץ + להוסיף משימה ראשונה</div></div>' : recent.map(t=>taskCard(t)).join('')}
+    </div>
+    <div class="sec" style="padding-top:0">
+      <div class="sec-title">פעילות לפי קטגוריה</div>
+      <div class="card" style="padding:4px 14px 4px">${catBars}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  TASKS TAB
+// ═══════════════════════════════════════════════════
+function renderTasks() {
+  const filtered = tasks.filter(t => {
+    if (taskFilter.status !== 'הכל' && t.status !== taskFilter.status) return false;
+    if (taskFilter.cat !== 'הכל' && t.category !== taskFilter.cat) return false;
+    if (taskFilter.q && !t.customerName.includes(taskFilter.q) && !t.description.includes(taskFilter.q)) return false;
+    return true;
+  });
+
+  const statusChips = ['הכל',...STATUSES].map(s =>
+    `<button class="chip ${taskFilter.status===s?'active':''}" onclick="setTaskFilter('status','${escHtml(s)}')">${escHtml(s)}</button>`
+  ).join('');
+
+  const catChips = ['הכל',...CATS].map(c =>
+    `<button class="chip ${taskFilter.cat===c?'active':''}" onclick="setTaskFilter('cat','${escHtml(c)}')">${c==='הכל'?'הכל':`${CAT_ICON[c]} ${escHtml(c)}`}</button>`
+  ).join('');
+
+  document.getElementById('tab-tasks').innerHTML = `
+    <div class="sec" style="padding-bottom:0">
+      <div class="sec-title">ניהול משימות</div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-inp" placeholder="חיפוש לפי לקוח או תיאור..." value="${escHtml(taskFilter.q)}" oninput="setTaskFilter('q',this.value)">
+      <div class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+    </div>
+    <div class="chips">${statusChips}</div>
+    <div class="chips">${catChips}</div>
+    <div class="sec" style="padding-top:0">
+      ${filtered.length===0 ? '<div class="empty"><div class="empty-ico">🔍</div><div class="empty-t">אין משימות תואמות</div><div class="empty-s">נסה לשנות את הסינון</div></div>' : filtered.map(t=>taskCard(t)).join('')}
+    </div>`;
+}
+
+function setTaskFilter(key, val) {
+  taskFilter[key] = val;
+  renderTasks();
+}
+
+// ═══════════════════════════════════════════════════
+//  CUSTOMERS TAB
+// ═══════════════════════════════════════════════════
+function renderCustomers() {
+  const filtered = customers.filter(c => !cusSearch || c.name.includes(cusSearch) || c.phone.includes(cusSearch));
+
+  const cards = filtered.map(c => {
+    const ct = tasks.filter(t=>t.customerId===c.id||t.customerName===c.name);
+    const openC = ct.filter(t=>t.status==='פתוח').length;
+    const badges = `<div class="cc-badges">
+      <span class="badge" style="background:var(--s3);color:var(--t3)">${ct.length} משימות</span>
+      ${openC>0?`<span class="badge" style="background:rgba(245,158,11,0.12);color:var(--amber)">${openC} פתוחות</span>`:''}
+    </div>`;
+    return `<div class="card" style="margin-bottom:10px">
+      <div class="cc">
+        <div class="cc-av">${escHtml(c.name.charAt(0))}</div>
+        <div style="flex:1;min-width:0">
+          <div class="cc-name">${escHtml(c.name)}</div>
+          <div class="cc-phone">${escHtml(c.phone)}</div>
+          ${c.notes?`<div class="cc-note">${escHtml(c.notes)}</div>`:''}
+          ${badges}
+        </div>
+        <div class="cc-actions">
+          <a href="tel:${escHtml(c.phone)}" class="icon-btn accent"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a>
+          <a href="https://wa.me/${fmtPhone(c.phone)}" target="_blank" class="icon-btn green"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.655 1.435 5.163L2 22l4.917-1.41A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
+          <button class="icon-btn" onclick="openCustomerForm('${c.id}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-customers').innerHTML = `
+    <div class="sec" style="padding-bottom:0">
+      <div class="sec-title">לקוחות (${customers.length})</div>
+    </div>
+    <div class="search-wrap">
+      <input class="search-inp" placeholder="חיפוש לקוח..." value="${escHtml(cusSearch)}" oninput="setCusSearch(this.value)">
+      <div class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+    </div>
+    <div class="sec" style="padding-top:0">
+      ${filtered.length===0?'<div class="empty"><div class="empty-ico">👤</div><div class="empty-t">אין לקוחות עדיין</div></div>':cards}
+    </div>`;
+}
+
+function setCusSearch(val) { cusSearch = val; renderCustomers(); }
+
+// ═══════════════════════════════════════════════════
+//  REPORTS TAB
+// ═══════════════════════════════════════════════════
+function renderReports() {
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.status==='הושלם').length;
+  const rate = total ? Math.round(done/total*100) : 0;
+  const circ = 2 * Math.PI * 34;
+
+  const catBars = CATS.map(cat => {
+    const cnt = tasks.filter(t=>t.category===cat).length;
+    const pct = total ? Math.round(cnt/total*100) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:16px">${CAT_ICON[cat]}</span>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px">${escHtml(cat)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span style="font-size:13px;font-weight:800;color:var(--t2);min-width:18px;text-align:center">${cnt}</span>
+    </div>`;
+  }).join('');
+
+  const statusCards = STATUSES.map(s => {
+    const cnt = tasks.filter(t=>t.status===s).length;
+    const c = STATUS_COLOR[s];
+    return `<div class="stat"><div class="dot" style="background:${c};margin-bottom:8px;width:8px;height:8px"></div><div class="stat-num" style="color:${c};font-size:28px">${cnt}</div><div class="stat-lbl">${escHtml(s)}</div></div>`;
+  }).join('');
+
+  document.getElementById('tab-reports').innerHTML = `
+    <div class="sec">
+      <div class="sec-title">דוחות וסטטיסטיקות</div>
+      
+      <div class="card" style="padding:18px;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:12px;font-weight:700">אחוז השלמת משימות</div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="ring-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--s3)" stroke-width="7"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="7"
+                stroke-dasharray="${rate*circ/100} ${circ}" stroke-linecap="round"
+                transform="rotate(-90 40 40)"/>
+            </svg>
+            <div class="ring-text"><span>${rate}%</span></div>
+          </div>
+          <div>
+            <div style="font-size:26px;font-weight:900;color:var(--t1)">${done}/${total}</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:3px">משימות הושלמו</div>
+            <div style="font-size:12px;color:var(--t2);margin-top:6px">${customers.length} לקוחות פעילים</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-title" style="margin-top:4px">לפי סטטוס</div>
+      <div class="stats-grid" style="margin-bottom:16px">${statusCards}</div>
+
+      <div class="sec-title">לפי קטגוריה</div>
+      <div class="card" style="padding:4px 14px 4px">${catBars}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+//  TASK DETAIL
+// ═══════════════════════════════════════════════════
+function openTaskDetail(id) {
+  const task = tasks.find(t=>t.id===id);
+  if (!task) return;
+  const sc = STATUS_COLOR[task.status]||'#6b7280';
+  const img = task.imageUrl ? `<img src="${escHtml(task.imageUrl)}" class="img-preview" style="width:100%;height:180px;margin-bottom:0" alt="שטח">` : '';
+
+  const html = `
+  <div class="overlay" id="taskDetailOverlay" onclick="closeModal('taskDetailOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-hdr">
+        <div class="row" style="gap:8px">
+          <span style="font-size:20px">${CAT_ICON[task.category]||'🔩'}</span>
+          ${statusBadge(task.status)}
+          ${priorityBadge(task.priority)}
+        </div>
+        <button class="icon-btn" onclick="closeModal('taskDetailOverlay')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:20px;font-weight:900;color:var(--t1);margin-bottom:16px">${escHtml(task.customerName)}</div>
+        ${img ? `<div style="margin-bottom:16px">${img}</div>` : ''}
+        <div class="detail-row"><div class="detail-label">קטגוריה</div><div class="detail-val">${escHtml(task.category)}</div></div>
+        <div class="detail-row"><div class="detail-label">טלפון</div><div class="detail-val">${escHtml(task.phone)}</div></div>
+        <div class="detail-row"><div class="detail-label">תיאור</div><div class="detail-val">${escHtml(task.description)}</div></div>
+        ${task.actionItems?`<div class="detail-row"><div class="detail-label">פעולות נדרשות</div><div class="tc-action" style="margin-top:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>${escHtml(task.actionItems)}</span></div></div>`:''}
+        ${task.callSummary?`<div class="detail-row"><div class="detail-label">סיכום שיחה</div><div class="detail-val">${escHtml(task.callSummary)}</div></div>`:''}
+        <div class="detail-row"><div class="detail-label">תאריך</div><div class="detail-val">${escHtml(task.date)}</div></div>
+        
+        <div style="display:flex;gap:7px;margin-top:18px">
+          <a href="tel:${escHtml(task.phone)}" class="btn flex1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> חייג</a>
+          <a href="https://wa.me/${fmtPhone(task.phone)}" target="_blank" class="btn flex1 green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.655 1.435 5.163L2 22l4.917-1.41A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg> WhatsApp</a>
+        </div>
+        <div style="display:flex;gap:7px;margin-top:7px">
+          <button class="btn flex1" onclick="closeModal('taskDetailOverlay');openTaskForm('${task.id}')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ערוך
+          </button>
+          ${task.status!=='הושלם'?`<button class="btn flex1 accent" onclick="completeTask('${task.id}');closeModal('taskDetailOverlay')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> בוצע</button>`:''}
+          <button class="btn danger" style="padding:9px 12px" onclick="deleteTask('${task.id}');closeModal('taskDetailOverlay')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6l-1 14H6L5 6M8 6V4h8v2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('modals').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════
+//  TASK FORM
+// ═══════════════════════════════════════════════════
+function openTaskForm(editId = null) {
+  const task = editId ? tasks.find(t=>t.id===editId) : null;
+  const f = task || {customerName:'',phone:'',category:'מדחסי אוויר',description:'',callSummary:'',actionItems:'',status:'פתוח',priority:'בינונית',imageUrl:null};
+
+  const cusQuick = !editId && customers.length ? `
+    <div class="modal-sec-title">בחר לקוח קיים</div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none">
+      ${customers.map(c=>`<button class="chip" style="flex-shrink:0" onclick="quickSelectCustomer('${escHtml(c.id)}')">${escHtml(c.name.split(' ').slice(0,2).join(' '))}</button>`).join('')}
+    </div>` : '';
+
+  const catChips = CATS.map(c=>`<button class="chip ${f.category===c?'active':''}" onclick="formCatSelect('${escHtml(c)}')">${CAT_ICON[c]} ${escHtml(c)}</button>`).join('');
+  const priChips = ['גבוהה','בינונית','נמוכה'].map(p=>`<button class="chip ${f.priority===p?'active':''}" onclick="formPriSelect('${escHtml(p)}')">${p==='גבוהה'?'🔴':p==='בינונית'?'🟡':'🟢'} ${escHtml(p)}</button>`).join('');
+  const statusSel = editId ? `
+    <div class="form-group">
+      <label class="form-label">סטטוס</label>
+      <select class="form-select" id="fStatus">${STATUSES.map(s=>`<option ${f.status===s?'selected':''}>${escHtml(s)}</option>`).join('')}</select>
+    </div>` : '';
+
+  const html = `
+  <div class="overlay" id="taskFormOverlay" onclick="closeModal('taskFormOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-hdr">
+        <div class="modal-title">${editId?'✏️ עריכת משימה':'➕ משימה חדשה'}</div>
+        <button class="icon-btn" onclick="closeModal('taskFormOverlay')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        ${cusQuick}
+        <div class="modal-sec-title">פרטי לקוח</div>
+        <div class="form-group">
+          <label class="form-label">שם לקוח / חברה</label>
+          <div class="inp-wrap">
+            <input class="form-input" id="fName" placeholder="שם החברה..." value="${escHtml(f.customerName)}">
+            <button class="inp-mic" onclick="listen(t=>document.getElementById('fName').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">טלפון</label>
+          <input class="form-input" id="fPhone" type="tel" placeholder="05X-XXXXXXX" value="${escHtml(f.phone)}">
+        </div>
+        <div class="modal-sec-title">ציוד ומשימה</div>
+        <div class="form-group">
+          <label class="form-label">סוג ציוד</label>
+          <div class="chips" style="padding:0;margin-bottom:0" id="catChips">${catChips}</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">עדיפות</label>
+          <div class="chips" style="padding:0;margin-bottom:0" id="priChips">${priChips}</div>
+        </div>
+        ${statusSel}
+        <div class="form-group">
+          <label class="form-label">תיאור המצב בשטח</label>
+          <div class="textarea-wrap">
+            <textarea class="form-textarea" id="fDesc" placeholder="תאר את התקלה / הציוד / המצב...">${escHtml(f.description)}</textarea>
+            <button class="textarea-mic" onclick="listen(t=>{const el=document.getElementById('fDesc');el.value=(el.value+' '+t).trim()})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">סיכום שיחה</label>
+          <div class="textarea-wrap">
+            <textarea class="form-textarea" id="fCall" style="min-height:70px" placeholder="מה עלה בשיחה?">${escHtml(f.callSummary)}</textarea>
+            <button class="textarea-mic" onclick="listen(t=>document.getElementById('fCall').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">מה צריך לעשות?</label>
+          <div class="inp-wrap">
+            <input class="form-input" id="fAction" placeholder="לשלוח הצעת מחיר, להזמין טכנאי..." value="${escHtml(f.actionItems)}">
+            <button class="inp-mic" onclick="listen(t=>document.getElementById('fAction').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">תמונה מהשטח</label>
+          <label class="img-upload">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.8" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span class="img-upload-txt">לחץ לצילום או העלאת תמונה</span>
+            <input type="file" accept="image/*" capture="environment" style="display:none" onchange="handleImg(this)">
+          </label>
+          ${f.imageUrl?`<img src="${escHtml(f.imageUrl)}" class="img-preview" id="imgPreview">`:
+          `<img id="imgPreview" class="img-preview" style="display:none">`}
+        </div>
+        <button class="btn primary-full" onclick="saveTask('${editId||''}')">
+          ${editId?'שמור שינויים':'צור משימה'} →
+        </button>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('modals').innerHTML = html;
+  window._formCat = f.category;
+  window._formPri = f.priority;
+  if (f.imageUrl) window._formImg = f.imageUrl;
+  else window._formImg = null;
+}
+
+function formCatSelect(cat) {
+  window._formCat = cat;
+  document.querySelectorAll('#catChips .chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.includes(cat));
+  });
+}
+
+function formPriSelect(pri) {
+  window._formPri = pri;
+  document.querySelectorAll('#priChips .chip').forEach(c => {
+    c.classList.toggle('active', c.textContent.trim().endsWith(pri));
+  });
+}
+
+function quickSelectCustomer(id) {
+  const c = customers.find(c=>c.id===id);
+  if (!c) return;
+  document.getElementById('fName').value = c.name;
+  document.getElementById('fPhone').value = c.phone;
+}
+
+function handleImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onloadend = () => {
+    window._formImg = reader.result;
+    const prev = document.getElementById('imgPreview');
+    if (prev) { prev.src = reader.result; prev.style.display = 'block'; }
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveTask(editId) {
+  const data = {
+    customerName: document.getElementById('fName').value.trim(),
+    phone: document.getElementById('fPhone').value.trim(),
+    category: window._formCat || 'מדחסי אוויר',
+    priority: window._formPri || 'בינונית',
+    description: document.getElementById('fDesc').value.trim(),
+    callSummary: document.getElementById('fCall').value.trim(),
+    actionItems: document.getElementById('fAction').value.trim(),
+    status: editId ? (document.getElementById('fStatus')?.value || 'פתוח') : 'פתוח',
+    imageUrl: window._formImg || null,
+  };
+  if (!data.customerName) { alert('נא להזין שם לקוח'); return; }
+
+  if (editId) {
+    const orig = tasks.find(t=>t.id===editId);
+    tasks = tasks.map(t => t.id===editId ? {...orig,...data} : t);
+  } else {
+    tasks.unshift({...data, id:'t'+Date.now(), date:new Date().toLocaleDateString('he-IL'), createdAt:Date.now()});
+  }
+  DB.set('tasks', tasks);
+  closeModal('taskFormOverlay');
+  renderTab(currentTab);
+}
+
+// ═══════════════════════════════════════════════════
+//  CUSTOMER FORM
+// ═══════════════════════════════════════════════════
+function openCustomerForm(editId=null) {
+  const c = editId ? customers.find(c=>c.id===editId) : null;
+  const f = c || {name:'',phone:'',email:'',address:'',notes:''};
+
+  const html = `
+  <div class="overlay" id="cusFormOverlay" onclick="closeModal('cusFormOverlay')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-hdr">
+        <div class="modal-title">${editId?'✏️ עריכת לקוח':'➕ לקוח חדש'}</div>
+        <button class="icon-btn" onclick="closeModal('cusFormOverlay')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">שם החברה / לקוח</label>
+          <div class="inp-wrap">
+            <input class="form-input" id="cfName" placeholder="שם החברה" value="${escHtml(f.name)}">
+            <button class="inp-mic" onclick="listen(t=>document.getElementById('cfName').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">טלפון</label>
+          <input class="form-input" id="cfPhone" type="tel" placeholder="05X-XXXXXXX" value="${escHtml(f.phone)}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">אימייל</label>
+          <input class="form-input" id="cfEmail" type="email" placeholder="email@company.co.il" value="${escHtml(f.email||'')}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">כתובת</label>
+          <input class="form-input" id="cfAddr" placeholder="עיר, רחוב" value="${escHtml(f.address||'')}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">הערות פנימיות</label>
+          <div class="textarea-wrap">
+            <textarea class="form-textarea" id="cfNotes" style="min-height:80px" placeholder="מידע חשוב על הלקוח...">${escHtml(f.notes||'')}</textarea>
+            <button class="textarea-mic" onclick="listen(t=>document.getElementById('cfNotes').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button>
+          </div>
+        </div>
+        <button class="btn primary-full" onclick="saveCustomer('${editId||''}')">
+          ${editId?'שמור שינויים':'הוסף לקוח'} →
+        </button>
+      </div>
+    </div>
+  </div>`;
+
+  document.getElementById('modals').innerHTML = html;
+}
+
+function saveCustomer(editId) {
+  const data = {
+    name: document.getElementById('cfName').value.trim(),
+    phone: document.getElementById('cfPhone').value.trim(),
+    email: document.getElementById('cfEmail').value.trim(),
+    address: document.getElementById('cfAddr').value.trim(),
+    notes: document.getElementById('cfNotes').value.trim(),
+  };
+  if (!data.name) { alert('נא להזין שם לקוח'); return; }
+
+  if (editId) {
+    customers = customers.map(c => c.id===editId ? {...c,...data} : c);
+  } else {
+    customers.unshift({...data, id:'c'+Date.now(), createdAt:Date.now()});
+  }
+  DB.set('customers', customers);
+  closeModal('cusFormOverlay');
+  renderTab(currentTab);
+}
+
+// ═══════════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════════
+function completeTask(id) {
+  tasks = tasks.map(t => t.id===id ? {...t, status:'הושלם'} : t);
+  DB.set('tasks', tasks);
+  renderTab(currentTab);
+}
+
+function deleteTask(id) {
+  if (!confirm('למחוק משימה זו?')) return;
+  tasks = tasks.filter(t => t.id!==id);
+  DB.set('tasks', tasks);
+  renderTab(currentTab);
+}
+
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.remove();
+  // If nothing else in modals, clear it
+  const m = document.getElementById('modals');
+  if (m && !m.hasChildNodes()) m.innerHTML = '';
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  seed();
+  tasks = DB.get('tasks');
+  customers = DB.get('customers');
+  initSpeech();
+  renderDashboard();
+});
+
+// Handle back gestures on iOS
+window.addEventListener('popstate', () => {
+  const modals = document.getElementById('modals');
+  if (modals && modals.children.length > 0) {
+    modals.innerHTML = '';
+  }
+});
+</script>
+</body>
+</html>
