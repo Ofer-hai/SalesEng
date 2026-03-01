@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SalesEng">
+<meta name="theme-color" content="#0d0f14">
+<title>SalesEng CRM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+:root {
+  --bg:#0d0f14;--s1:#13161e;--s2:#1a1e2a;--s3:#212535;--s4:#2a2f42;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
+  --accent:#f97316;--adim:rgba(249,115,22,0.15);--aglow:0 0 24px rgba(249,115,22,0.35);
+  --blue:#3b82f6;--green:#10b981;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;
+  --t1:#f1f5f9;--t2:#94a3b8;--t3:#475569;
+  --r:14px;--rsm:9px;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;overflow:hidden;}
+body{height:100%;background:var(--bg);color:var(--t1);font-family:'Heebo',-apple-system,sans-serif;overflow:hidden;-webkit-overflow-scrolling:touch;-webkit-text-size-adjust:100%;}
+a{color:inherit;text-decoration:none;}
+button{font-family:'Heebo',sans-serif;cursor:pointer;border:none;background:none;}
+input,textarea,select{font-family:'Heebo',sans-serif;direction:rtl;}
+select option{background:var(--s2);}
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-thumb{background:var(--s4);border-radius:3px;}
+
+/* APP */
+#app{display:flex;flex-direction:column;height:100vh;max-width:430px;margin:0 auto;background:var(--bg);position:relative;}
+
+/* LOADING */
+#loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;gap:16px;}
+.load-logo{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:white;box-shadow:var(--aglow);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.8;transform:scale(.95)}}
+.load-text{font-size:14px;color:var(--t3);}
+
+/* LOGIN */
+#loginScreen{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:24px;}
+.login-card{width:100%;max-width:360px;background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:28px 24px;}
+.login-logo{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
+.login-mark{width:44px;height:44px;background:var(--accent);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:white;box-shadow:var(--aglow);}
+.login-title{font-size:20px;font-weight:900;color:var(--t1);}
+.login-sub{font-size:12px;color:var(--t3);}
+.login-err{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:var(--rsm);padding:10px 12px;font-size:13px;color:var(--red);margin-bottom:14px;display:none;}
+
+/* HEADER */
+.hdr{flex-shrink:0;padding:calc(var(--safe-top) + 12px) 18px 12px;background:var(--s1);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:relative;z-index:10;}
+.hdr-logo{display:flex;align-items:center;gap:10px;}
+.hdr-mark{width:34px;height:34px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:white;box-shadow:var(--aglow);}
+.hdr-title{font-size:15px;font-weight:800;color:var(--t1);}
+.hdr-sub{font-size:10px;color:var(--t3);}
+.hdr-right{display:flex;align-items:center;gap:8px;}
+.user-badge{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:5px 10px 5px 6px;}
+.user-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:white;}
+.user-name{font-size:11px;font-weight:700;color:var(--t2);}
+
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+
+/* NAV */
+.nav{flex-shrink:0;display:flex;background:var(--s1);border-top:1px solid var(--border);padding:6px 0 calc(6px + var(--safe-bottom));}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;color:var(--t3);transition:color .2s;font-size:10px;font-weight:700;}
+.nav-btn.active{color:var(--accent);}
+
+/* FAB */
+.fab{position:fixed;bottom:calc(72px + var(--safe-bottom));left:18px;width:52px;height:52px;border-radius:50%;background:var(--accent);color:white;display:flex;align-items:center;justify-content:center;box-shadow:var(--aglow),0 8px 32px rgba(0,0,0,.5);z-index:30;transition:transform .12s;}
+.fab:active{transform:scale(.92);}
+
+/* SECTIONS */
+.sec{padding:18px;}
+.sec-title{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:12px;}
+.pb-nav{padding-bottom:calc(85px + var(--safe-bottom));}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .15s;}
+.card+.card{margin-top:10px;}
+
+/* TASK CARD */
+.tc{padding:15px;display:flex;flex-direction:column;gap:11px;}
+.tc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.tc-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.tc-name{font-size:15px;font-weight:800;color:var(--t1);margin-top:5px;line-height:1.3;}
+.tc-desc{font-size:13px;color:var(--t2);line-height:1.65;}
+.tc-action{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:9px 11px;font-size:12px;color:var(--t2);display:flex;gap:7px;align-items:flex-start;line-height:1.5;}
+.tc-footer{display:flex;gap:7px;border-top:1px solid var(--border);padding-top:11px;}
+.tc-img{width:100%;max-height:160px;object-fit:cover;border-radius:var(--rsm);border:1px solid var(--border);}
+.tc-video{width:100%;max-height:200px;border-radius:var(--rsm);border:1px solid var(--border);}
+.agent-tag{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t3);}
+.agent-dot{width:6px;height:6px;border-radius:50%;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:.2px;}
+.dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 12px;border-radius:var(--rsm);border:1px solid var(--border);background:var(--s2);color:var(--t2);font-size:12px;font-weight:700;transition:all .12s;white-space:nowrap;}
+.btn:active{opacity:.75;}
+.btn.flex1{flex:1;}
+.btn.accent{background:var(--adim);border-color:var(--accent);color:var(--accent);}
+.btn.green{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green);}
+.btn.danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25);color:var(--red);}
+.btn.primary-full{width:100%;background:var(--accent);color:white;font-size:15px;font-weight:800;padding:14px;border-radius:var(--r);border:none;margin-top:6px;box-shadow:var(--aglow);}
+.btn.primary-full:active{transform:scale(.98);}
+.icon-btn{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--s2);display:flex;align-items:center;justify-content:center;color:var(--t2);flex-shrink:0;}
+.icon-btn.accent{background:var(--adim);border-color:rgba(249,115,22,.3);color:var(--accent);}
+.icon-btn.green{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:var(--green);}
+
+/* HERO */
+.hero{padding:20px 18px 18px;background:linear-gradient(160deg,var(--s1) 0%,var(--s2) 100%);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-50px;left:-30px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.07) 0%,transparent 65%);pointer-events:none;}
+.hero-greet{font-size:13px;color:var(--t3);margin-bottom:3px;}
+.hero-name{font-size:22px;font-weight:900;color:var(--t1);}
+.hero-stats{font-size:13px;color:var(--t2);margin-top:5px;}
+.hero-date{font-size:11px;color:var(--t3);margin-top:8px;}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stat{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:15px;}
+.stat-num{font-size:28px;font-weight:900;margin:4px 0;}
+.stat-lbl{font-size:11px;color:var(--t3);font-weight:500;}
+
+/* SEARCH */
+.search-wrap{padding:0 18px 14px;position:relative;}
+.search-inp{width:100%;background:var(--s1);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px 10px 38px;color:var(--t1);font-size:13px;direction:rtl;}
+.search-inp::placeholder{color:var(--t3);}
+.search-inp:focus{outline:none;border-color:var(--border2);}
+.search-icon{position:absolute;left:30px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none;}
+
+/* CHIPS */
+.chips{display:flex;gap:6px;overflow-x:auto;padding:0 18px 12px;scrollbar-width:none;}
+.chips::-webkit-scrollbar{display:none;}
+.chip{flex-shrink:0;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid var(--border);background:var(--s2);color:var(--t2);transition:all .12s;}
+.chip.active{background:var(--adim);border-color:var(--accent);color:var(--accent);}
+
+/* FORM */
+.form-label{display:block;font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:11px 13px;color:var(--t1);font-size:14px;direction:rtl;transition:border-color .15s,box-shadow .15s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(249,115,22,.1);}
+.form-textarea{min-height:90px;resize:none;line-height:1.65;}
+.form-group{margin-bottom:14px;}
+.inp-wrap{position:relative;}
+.inp-wrap .form-input{padding-left:42px;}
+.inp-mic{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:28px;height:28px;border-radius:7px;background:var(--s3);color:var(--t2);display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.inp-mic.rec{background:rgba(239,68,68,.2);color:var(--red);}
+.textarea-wrap{position:relative;}
+.textarea-wrap .form-textarea{padding-left:42px;}
+.textarea-mic{position:absolute;left:8px;bottom:10px;width:28px;height:28px;border-radius:7px;background:var(--s3);color:var(--t2);display:flex;align-items:center;justify-content:center;}
+.textarea-mic.rec{background:rgba(239,68,68,.2);color:var(--red);}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:50;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeIn .18s ease;}
+@keyframes fadeIn{from{opacity:0}}
+.modal{background:var(--s1);width:100%;max-width:430px;border-radius:22px 22px 0 0;padding:0 0 calc(20px + var(--safe-bottom));max-height:93vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--border2);border-bottom:none;animation:slideUp .28s cubic-bezier(.34,1.4,.64,1);}
+@keyframes slideUp{from{transform:translateY(100%)}}
+.modal-handle{width:36px;height:4px;background:var(--s4);border-radius:2px;margin:14px auto 0;}
+.modal-hdr{padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:18px;font-weight:900;color:var(--t1);}
+.modal-body{padding:18px;}
+.modal-sec-title{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin:16px 0 8px;}
+.modal-sec-title:first-child{margin-top:0;}
+
+/* CUSTOMER CARD */
+.cc{padding:14px;display:flex;align-items:center;gap:12px;}
+.cc-av{width:42px;height:42px;border-radius:10px;flex-shrink:0;background:var(--adim);border:1px solid rgba(249,115,22,.2);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--accent);}
+.cc-name{font-size:14px;font-weight:800;color:var(--t1);}
+.cc-phone{font-size:11px;color:var(--t3);margin-top:2px;}
+.cc-note{font-size:12px;color:var(--t2);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;}
+.cc-badges{display:flex;gap:5px;margin-top:5px;}
+.cc-actions{margin-right:auto;display:flex;gap:7px;flex-shrink:0;}
+
+/* DETAIL */
+.detail-row{padding:12px 0;border-bottom:1px solid var(--border);}
+.detail-row:last-child{border-bottom:none;}
+.detail-label{font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1.3px;text-transform:uppercase;margin-bottom:4px;}
+.detail-val{font-size:14px;color:var(--t1);line-height:1.6;}
+
+/* CHART RING */
+.ring-wrap{position:relative;width:80px;height:80px;}
+.ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:var(--t1);}
+
+/* BAR */
+.bar-track{height:5px;background:var(--s3);border-radius:3px;overflow:hidden;margin-top:5px;}
+.bar-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .6s ease;}
+
+/* UPLOAD PROGRESS */
+.upload-progress{background:var(--s2);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;margin-top:8px;display:none;}
+.upload-bar-track{height:4px;background:var(--s3);border-radius:2px;margin-top:8px;overflow:hidden;}
+.upload-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .3s;width:0%;}
+.upload-label{font-size:12px;color:var(--t2);}
+
+/* IMAGE UPLOAD */
+.img-upload{border:2px dashed var(--border2);border-radius:var(--r);padding:22px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:all .15s;}
+.img-upload:hover,.img-upload:active{border-color:var(--accent);background:var(--adim);}
+.img-upload-txt{font-size:12px;color:var(--t3);}
+.img-preview{width:100%;height:140px;object-fit:cover;border-radius:var(--rsm);border:1px solid var(--border);margin-top:8px;}
+
+/* MANAGER TABS */
+.mgr-tabs{display:flex;gap:2px;background:var(--s2);border-radius:var(--rsm);padding:3px;margin-bottom:16px;}
+.mgr-tab{flex:1;padding:8px;border:none;background:transparent;color:var(--t3);font-size:12px;font-weight:700;border-radius:7px;cursor:pointer;font-family:'Heebo',sans-serif;transition:all .15s;}
+.mgr-tab.active{background:var(--s1);color:var(--t1);box-shadow:0 1px 4px rgba(0,0,0,.3);}
+
+/* AGENT CARD */
+.agent-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:10px;}
+.agent-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.agent-avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;flex-shrink:0;}
+.agent-name{font-size:15px;font-weight:800;color:var(--t1);}
+.agent-email{font-size:11px;color:var(--t3);margin-top:2px;}
+.agent-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.agent-stat{background:var(--s2);border-radius:var(--rsm);padding:10px;text-align:center;}
+.agent-stat-num{font-size:20px;font-weight:900;color:var(--t1);}
+.agent-stat-lbl{font-size:10px;color:var(--t3);}
+
+/* TOAST */
+.toast{position:fixed;top:calc(var(--safe-top) + 80px);left:50%;transform:translateX(-50%);padding:9px 20px;border-radius:24px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;z-index:100;white-space:nowrap;}
+.toast.recording{background:var(--red);color:white;box-shadow:0 4px 24px rgba(239,68,68,.4);animation:recPulse 1s infinite;}
+.toast.success{background:var(--green);color:white;box-shadow:0 4px 24px rgba(16,185,129,.4);}
+.toast.error{background:var(--red);color:white;}
+.toast.uploading{background:var(--blue);color:white;}
+@keyframes recPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.rec-dot{width:8px;height:8px;background:white;border-radius:50%;}
+
+/* UTILS */
+.row{display:flex;align-items:center;gap:8px;}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.col{display:flex;flex-direction:column;}
+.hidden{display:none!important;}
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <div class="load-logo">SE</div>
+  <div class="load-text">טוען...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="hidden">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-mark">SE</div>
+      <div>
+        <div class="login-title">SalesEng CRM</div>
+        <div class="login-sub">Field Sales Manager</div>
+      </div>
+    </div>
+    <div class="login-err" id="loginErr"></div>
+    <div class="form-group">
+      <label class="form-label">אימייל</label>
+      <input class="form-input" id="loginEmail" type="email" placeholder="your@email.com" style="direction:ltr">
+    </div>
+    <div class="form-group">
+      <label class="form-label">סיסמה</label>
+      <input class="form-input" id="loginPass" type="password" placeholder="••••••••" style="direction:ltr">
+    </div>
+    <button class="btn primary-full" id="loginBtn" onclick="doLogin()">
+      <span id="loginBtnText">כניסה למערכת</span>
+    </button>
+    <div style="text-align:center;margin-top:16px;font-size:12px;color:var(--t3);">
+      פעם ראשונה? <button onclick="showRegister()" style="color:var(--accent);font-weight:700;font-size:12px">הרשמה</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="registerScreen" class="hidden" style="position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:100;padding:24px;">
+  <div style="width:100%;max-width:360px;background:var(--s1);border:1px solid var(--border2);border-radius:20px;padding:28px 24px;">
+    <div style="font-size:18px;font-weight:900;color:var(--t1);margin-bottom:20px;">יצירת חשבון</div>
+    <div class="login-err" id="regErr"></div>
+    <div class="form-group">
+      <label class="form-label">שם מלא</label>
+      <input class="form-input" id="regName" placeholder="שם פרטי ומשפחה">
+    </div>
+    <div class="form-group">
+      <label class="form-label">אימייל</label>
+      <input class="form-input" id="regEmail" type="email" placeholder="your@email.com" style="direction:ltr">
+    </div>
+    <div class="form-group">
+      <label class="form-label">סיסמה</label>
+      <input class="form-input" id="regPass" type="password" placeholder="לפחות 6 תווים" style="direction:ltr">
+    </div>
+    <div class="form-group">
+      <label class="form-label">תפקיד</label>
+      <select class="form-select" id="regRole">
+        <option value="agent">סוכן מכירות</option>
+        <option value="manager">מנהל</option>
+      </select>
+    </div>
+    <button class="btn primary-full" onclick="doRegister()">הרשמה</button>
+    <button onclick="showLogin()" style="width:100%;margin-top:10px;padding:12px;color:var(--t3);font-size:13px;">חזרה לכניסה</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden">
+  <header class="hdr">
+    <div class="hdr-logo">
+      <div class="hdr-mark">SE</div>
+      <div>
+        <div class="hdr-title">SalesEng CRM</div>
+        <div class="hdr-sub" id="hdrSub">Field Sales</div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="user-badge" id="userBadge">
+        <div class="user-dot" id="userDot" style="background:var(--accent)">?</div>
+        <span class="user-name" id="userName">...</span>
+      </div>
+      <button class="icon-btn" onclick="doLogout()" title="יציאה">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="scroll" id="mainScroll">
+    <div id="tab-dashboard" class="tab pb-nav"></div>
+    <div id="tab-tasks" class="tab hidden pb-nav"></div>
+    <div id="tab-customers" class="tab hidden pb-nav"></div>
+    <div id="tab-manager" class="tab hidden pb-nav"></div>
+  </div>
+
+  <button class="fab" id="fab" onclick="openFab()">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+
+  <nav class="nav" id="mainNav">
+    <button class="nav-btn active" id="nav-dashboard" onclick="showTab('dashboard')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2zM9 22V12h6v10"/></svg>
+      <span>בית</span>
+    </button>
+    <button class="nav-btn" id="nav-tasks" onclick="showTab('tasks')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>משימות</span>
+    </button>
+    <button class="nav-btn" id="nav-customers" onclick="showTab('customers')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+      <span>לקוחות</span>
+    </button>
+    <button class="nav-btn hidden" id="nav-manager" onclick="showTab('manager')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span>מנהל</span>
+    </button>
+  </nav>
+</div>
+
+<div id="modals"></div>
+<div class="toast hidden" id="toastEl"></div>
+
+<!-- FIREBASE SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// ── FIREBASE CONFIG ──────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBpiwC4tcilosv-T_saklj7nFB7NSdDq5Y",
+  authDomain: "saleseng-crm.firebaseapp.com",
+  projectId: "saleseng-crm",
+  storageBucket: "saleseng-crm.firebasestorage.app",
+  messagingSenderId: "724118413126",
+  appId: "1:724118413126:web:5d75d8dd74aa2e9bdb4f47",
+  measurementId: "G-Z2VBNMFX5X"
+};
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+const storage = getStorage(firebaseApp);
+
+// ── CONSTANTS ────────────────────────────────────
+const CATS = ["מדחסי אוויר","מחוללי חנקן/חמצן","משאבות","מנועים חשמליים"];
+const STATUSES = ["פתוח","בטיפול","הושלם","בוטל"];
+const CAT_ICON = {"מדחסי אוויר":"💨","מחוללי חנקן/חמצן":"⚗️","משאבות":"🔧","מנועים חשמליים":"⚡"};
+const STATUS_COLOR = {"פתוח":"#f59e0b","בטיפול":"#3b82f6","הושלם":"#10b981","בוטל":"#6b7280"};
+const AGENT_COLORS = ["#f97316","#3b82f6","#10b981","#8b5cf6","#ef4444","#f59e0b"];
+
+// ── STATE ────────────────────────────────────────
+let currentUser = null;
+let currentProfile = null;
+let tasks = [];
+let customers = [];
+let allUsers = [];
+let currentTab = 'dashboard';
+let taskFilter = {status:'הכל',cat:'הכל',q:''};
+let cusSearch = '';
+let recognition = null;
+let isRecording = false;
+let unsubTasks = null;
+let unsubCustomers = null;
+let mgrTab = 'overview';
+
+// ── SPEECH ───────────────────────────────────────
+function initSpeech() {
+  const SR = window.webkitSpeechRecognition || window.SpeechRecognition;
+  if (!SR) return;
+  recognition = new SR();
+  recognition.lang = 'he-IL';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+}
+
+function listen(onResult) {
+  if (!recognition) { showToast('הדפדפן לא תומך בתמלול קולי','error'); return; }
+  isRecording = true;
+  showToast('מקשיב... דבר עכשיו','recording',true);
+  document.querySelectorAll('.inp-mic,.textarea-mic').forEach(b=>b.classList.add('rec'));
+  try { recognition.start(); } catch(e){}
+  recognition.onresult = (e) => { onResult(e.results[0][0].transcript); stopRec(); };
+  recognition.onerror = recognition.onend = stopRec;
+}
+window.listen = listen;
+
+function stopRec() {
+  isRecording = false;
+  hideToast();
+  document.querySelectorAll('.inp-mic,.textarea-mic').forEach(b=>b.classList.remove('rec'));
+}
+
+// ── TOAST ────────────────────────────────────────
+let toastTimer = null;
+function showToast(msg, type='success', persist=false) {
+  const el = document.getElementById('toastEl');
+  el.className = `toast ${type}`;
+  el.innerHTML = type==='recording' ? `<div class="rec-dot"></div>${msg}` : msg;
+  el.classList.remove('hidden');
+  if (toastTimer) clearTimeout(toastTimer);
+  if (!persist) toastTimer = setTimeout(hideToast, 2500);
+}
+function hideToast() {
+  document.getElementById('toastEl')?.classList.add('hidden');
+}
+
+// ── HELPERS ──────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function fmtPhone(p) { return p ? p.replace(/^0/,'972').replace(/-/g,'') : ''; }
+function getUserColor(uid) { if(!uid)return AGENT_COLORS[0]; let h=0; for(let c of uid){h=(h*31+c.charCodeAt(0))%AGENT_COLORS.length;} return AGENT_COLORS[h]; }
+function getInitials(name) { if(!name)return '?'; return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function isManager() { return currentProfile?.role === 'manager'; }
+
+// ── AUTH ─────────────────────────────────────────
+window.showLogin = function() {
+  document.getElementById('registerScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('hidden');
+};
+window.showRegister = function() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('registerScreen').classList.remove('hidden');
+};
+
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginErr');
+  errEl.style.display='none';
+  btn.innerHTML='<div class="spinner"></div>';
+  btn.disabled=true;
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    errEl.textContent = e.code==='auth/invalid-credential'?'אימייל או סיסמה שגויים':e.message;
+    errEl.style.display='block';
+    btn.innerHTML='<span id="loginBtnText">כניסה למערכת</span>';
+    btn.disabled=false;
+  }
+};
+
+window.doRegister = async function() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const role = document.getElementById('regRole').value;
+  const errEl = document.getElementById('regErr');
+  errEl.style.display='none';
+  if (!name || !email || !pass) { errEl.textContent='נא למלא את כל השדות'; errEl.style.display='block'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await setDoc(doc(db,'users',cred.user.uid), { name, email, role, createdAt: serverTimestamp() });
+    showToast('חשבון נוצר בהצלחה!');
+  } catch(e) {
+    errEl.textContent = e.code==='auth/email-already-in-use'?'האימייל כבר רשום במערכת':e.message;
+    errEl.style.display='block';
+  }
+};
+
+window.doLogout = async function() {
+  if (unsubTasks) unsubTasks();
+  if (unsubCustomers) unsubCustomers();
+  await signOut(auth);
+};
+
+// ── AUTH STATE ───────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  document.getElementById('loadingScreen').classList.add('hidden');
+  if (user) {
+    currentUser = user;
+    // Load profile
+    const snap = await getDoc(doc(db,'users',user.uid));
+    if (snap.exists()) {
+      currentProfile = snap.data();
+    } else {
+      currentProfile = { name: user.email, role: 'agent' };
+    }
+    // Load all users for manager view
+    if (isManager()) {
+      const usersSnap = await getDocs(collection(db,'users'));
+      allUsers = usersSnap.docs.map(d=>({id:d.id,...d.data()}));
+    }
+    setupUI();
+    subscribeData();
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('registerScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+  } else {
+    currentUser = null;
+    currentProfile = null;
+    tasks = [];
+    customers = [];
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('loginBtn').innerHTML='<span id="loginBtnText">כניסה למערכת</span>';
+    document.getElementById('loginBtn').disabled=false;
+  }
+});
+
+function setupUI() {
+  const initials = getInitials(currentProfile?.name);
+  const color = getUserColor(currentUser.uid);
+  document.getElementById('userDot').textContent = initials;
+  document.getElementById('userDot').style.background = color;
+  document.getElementById('userName').textContent = currentProfile?.name?.split(' ')[0] || '';
+  document.getElementById('hdrSub').textContent = isManager() ? '👑 מנהל' : '🔧 סוכן';
+  // Show manager tab
+  if (isManager()) {
+    document.getElementById('nav-manager').classList.remove('hidden');
+  }
+}
+
+// ── REALTIME DATA ────────────────────────────────
+function subscribeData() {
+  // Tasks - manager sees all, agent sees own
+  let tasksQ;
+  if (isManager()) {
+    tasksQ = query(collection(db,'tasks'), orderBy('createdAt','desc'));
+  } else {
+    tasksQ = query(collection(db,'tasks'), where('agentId','==',currentUser.uid), orderBy('createdAt','desc'));
+  }
+  unsubTasks = onSnapshot(tasksQ, snap => {
+    tasks = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderTab(currentTab);
+  });
+
+  // Customers
+  let cusQ;
+  if (isManager()) {
+    cusQ = query(collection(db,'customers'), orderBy('createdAt','desc'));
+  } else {
+    cusQ = query(collection(db,'customers'), where('agentId','==',currentUser.uid), orderBy('createdAt','desc'));
+  }
+  unsubCustomers = onSnapshot(cusQ, snap => {
+    customers = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderTab(currentTab);
+  });
+}
+
+// ── NAVIGATION ───────────────────────────────────
+window.showTab = function(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.add('hidden'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  const nb = document.getElementById('nav-'+tab);
+  if (nb) nb.classList.add('active');
+  document.getElementById('fab').classList.toggle('hidden', tab==='manager');
+  renderTab(tab);
+};
+
+function renderTab(tab) {
+  if (tab==='dashboard') renderDashboard();
+  else if (tab==='tasks') renderTasks();
+  else if (tab==='customers') renderCustomers();
+  else if (tab==='manager') renderManager();
+}
+
+window.openFab = function() {
+  if (currentTab==='customers') openCustomerForm();
+  else openTaskForm();
+};
+
+// ── TASK CARD HTML ───────────────────────────────
+function taskCardHtml(task) {
+  const sc = STATUS_COLOR[task.status]||'#6b7280';
+  const mediaHtml = task.mediaUrl ? (task.mediaType==='video'
+    ? `<video src="${esc(task.mediaUrl)}" class="tc-video" controls playsinline></video>`
+    : `<img src="${esc(task.mediaUrl)}" class="tc-img" alt="שטח">`) : '';
+  const action = task.actionItems ? `<div class="tc-action"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>${esc(task.actionItems)}</span></div>` : '';
+  const doneBtn = task.status!=='הושלם' ? `<button class="btn flex1 accent" onclick="event.stopPropagation();completeTask('${task.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> בוצע</button>` : '';
+  const agentInfo = isManager() && task.agentName ? `<div class="agent-tag"><div class="agent-dot" style="background:${getUserColor(task.agentId)}"></div>${esc(task.agentName)}</div>` : '';
+  const priDot = task.priority==='גבוהה' ? `<span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">🔴 דחוף</span>` : '';
+  const ts = task.createdAt?.toDate ? task.createdAt.toDate().toLocaleDateString('he-IL') : (task.date||'');
+
+  return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openTaskDetail('${task.id}')">
+    <div class="tc">
+      <div class="tc-top">
+        <div>
+          <div class="tc-meta">
+            <span style="font-size:15px">${CAT_ICON[task.category]||'🔩'}</span>
+            <span class="badge" style="background:${sc}22;color:${sc}"><div class="dot" style="background:${sc}"></div>${esc(task.status)}</span>
+            ${priDot}
+          </div>
+          <div class="tc-name">${esc(task.customerName)}</div>
+          ${agentInfo}
+        </div>
+        <div class="col" style="align-items:flex-end;flex-shrink:0">
+          <span style="font-size:10px;color:var(--t3)">${ts}</span>
+          <span style="font-size:11px;color:var(--accent);margin-top:3px">${esc(task.category)}</span>
+        </div>
+      </div>
+      <div class="tc-desc">${esc(task.description)}</div>
+      ${mediaHtml}
+      ${action}
+      <div class="tc-footer" onclick="event.stopPropagation()">
+        <a href="tel:${esc(task.phone)}" class="btn flex1">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          ${esc(task.phone)}
+        </a>
+        <a href="https://wa.me/${fmtPhone(task.phone)}" target="_blank" class="btn green" style="padding:9px 10px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.655 1.435 5.163L2 22l4.917-1.41A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+        </a>
+        ${doneBtn}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── DASHBOARD ────────────────────────────────────
+function renderDashboard() {
+  const open = tasks.filter(t=>t.status==='פתוח').length;
+  const inprog = tasks.filter(t=>t.status==='בטיפול').length;
+  const done = tasks.filter(t=>t.status==='הושלם').length;
+  const urgent = tasks.filter(t=>t.priority==='גבוהה'&&t.status!=='הושלם');
+  const today = new Date().toLocaleDateString('he-IL',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const greeting = isManager() ? `שלום, ${currentProfile?.name?.split(' ')[0]||'מנהל'} 👑` : `שלום, ${currentProfile?.name?.split(' ')[0]||'סוכן'} 👋`;
+
+  const urgentHtml = urgent.length ? `
+    <div class="sec" style="padding-top:0">
+      <div class="sec-title" style="color:var(--red)">⚠️ דחוף - דורש טיפול</div>
+      ${urgent.slice(0,3).map(taskCardHtml).join('')}
+    </div>` : '';
+
+  const catBars = CATS.map(cat=>{
+    const cnt = tasks.filter(t=>t.category===cat).length;
+    const pct = tasks.length ? Math.min(100,Math.round(cnt/tasks.length*100)) : 0;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:16px">${CAT_ICON[cat]}</span>
+      <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--t1)">${esc(cat)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>
+      <span style="font-size:13px;font-weight:800;color:var(--t2);min-width:18px;text-align:center">${cnt}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tab-dashboard').innerHTML = `
+    <div class="hero">
+      <div class="hero-greet">${isManager()?'דשבורד מנהל':'היום בשטח'}</div>
+      <div class="hero-name">${greeting}</div>
+      <div class="hero-stats">${open} פתוחות · ${inprog} בטיפול · ${done} הושלמו</div>
+      <div class="hero-date">${today}</div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">סקירה מהירה</div>
+      <div class="stats-grid">
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><div class="stat-num" style="color:var(--amber)">${open}</div><div class="stat-lbl">פתוחות</div></div>
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg><div class="stat-num" style="color:var(--blue)">${inprog}</div><div class="stat-lbl">בטיפול</div></div>
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-lbl">הושלמו</div></div>
+        <div class="stat"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg><div class="stat-num" style="color:var(--accent)">${customers.length}</div><div class="stat-lbl">לקוחות</div></div>
+      </div>
+    </div>
+    ${urgentHtml}
+    <div class="sec" style="padding-top:0">
+      <div class="sec-title">ביקורים אחרונים</div>
+      ${tasks.length===0?'<div style="text-align:center;padding:40px 0;color:var(--t3)">אין משימות עדיין<br><small>לחץ + להוסיף</small></div>':tasks.slice(0,5).map(taskCardHtml).join('')}
+    </div>
+    <div class="sec" style="padding-top:0">
+      <div class="sec-title">פעילות לפי קטגוריה</div>
+      <div class="card" style="padding:4px 14px 4px">${catBars}</div>
+    </div>`;
+}
+
+// ── TASKS TAB ────────────────────────────────────
+function renderTasks() {
+  const filtered = tasks.filter(t=>{
+    if (taskFilter.status!=='הכל'&&t.status!==taskFilter.status) return false;
+    if (taskFilter.cat!=='הכל'&&t.category!==taskFilter.cat) return false;
+    if (taskFilter.q&&!t.customerName?.includes(taskFilter.q)&&!t.description?.includes(taskFilter.q)) return false;
+    return true;
+  });
+  const statusChips = ['הכל',...STATUSES].map(s=>`<button class="chip ${taskFilter.status===s?'active':''}" onclick="setTaskFilter('status','${esc(s)}')">${esc(s)}</button>`).join('');
+  const catChips = ['הכל',...CATS].map(c=>`<button class="chip ${taskFilter.cat===c?'active':''}" onclick="setTaskFilter('cat','${esc(c)}')">${c==='הכל'?'הכל':`${CAT_ICON[c]} ${esc(c)}`}</button>`).join('');
+  document.getElementById('tab-tasks').innerHTML = `
+    <div class="sec" style="padding-bottom:0"><div class="sec-title">ניהול משימות (${filtered.length})</div></div>
+    <div class="search-wrap">
+      <input class="search-inp" placeholder="חיפוש לפי לקוח..." value="${esc(taskFilter.q)}" oninput="setTaskFilter('q',this.value)">
+      <div class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+    </div>
+    <div class="chips">${statusChips}</div>
+    <div class="chips">${catChips}</div>
+    <div class="sec" style="padding-top:0">
+      ${filtered.length===0?'<div style="text-align:center;padding:40px 0;color:var(--t3)">אין תוצאות</div>':filtered.map(taskCardHtml).join('')}
+    </div>`;
+}
+window.setTaskFilter = (k,v)=>{ taskFilter[k]=v; renderTasks(); };
+
+// ── CUSTOMERS TAB ────────────────────────────────
+function renderCustomers() {
+  const filtered = customers.filter(c=>!cusSearch||c.name?.includes(cusSearch)||c.phone?.includes(cusSearch));
+  const cards = filtered.map(c=>{
+    const ct = tasks.filter(t=>t.customerId===c.id);
+    const openC = ct.filter(t=>t.status==='פתוח').length;
+    const color = getUserColor(c.agentId||'');
+    return `<div class="card" style="margin-bottom:10px">
+      <div class="cc">
+        <div class="cc-av">${esc(c.name?.charAt(0)||'?')}</div>
+        <div style="flex:1;min-width:0">
+          <div class="cc-name">${esc(c.name)}</div>
+          <div class="cc-phone">${esc(c.phone)}</div>
+          ${c.notes?`<div class="cc-note">${esc(c.notes)}</div>`:''}
+          <div class="cc-badges">
+            <span class="badge" style="background:var(--s3);color:var(--t3)">${ct.length} משימות</span>
+            ${openC>0?`<span class="badge" style="background:rgba(245,158,11,.12);color:var(--amber)">${openC} פתוחות</span>`:''}
+            ${isManager()&&c.agentName?`<span class="badge" style="background:${color}20;color:${color}">${esc(c.agentName)}</span>`:''}
+          </div>
+        </div>
+        <div class="cc-actions">
+          <a href="tel:${esc(c.phone)}" class="icon-btn accent"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a>
+          <a href="https://wa.me/${fmtPhone(c.phone)}" target="_blank" class="icon-btn green"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.655 1.435 5.163L2 22l4.917-1.41A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg></a>
+          <button class="icon-btn" onclick="openCustomerForm('${c.id}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('tab-customers').innerHTML = `
+    <div class="sec" style="padding-bottom:0"><div class="sec-title">לקוחות (${customers.length})</div></div>
+    <div class="search-wrap">
+      <input class="search-inp" placeholder="חיפוש לקוח..." value="${esc(cusSearch)}" oninput="setCusSearch(this.value)">
+      <div class="search-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+    </div>
+    <div class="sec" style="padding-top:0">
+      ${filtered.length===0?'<div style="text-align:center;padding:40px 0;color:var(--t3)">אין לקוחות</div>':cards}
+    </div>`;
+}
+window.setCusSearch = v=>{ cusSearch=v; renderCustomers(); };
+
+// ── MANAGER TAB ──────────────────────────────────
+function renderManager() {
+  if (!isManager()) return;
+  const tabs = `<div class="mgr-tabs">
+    <button class="mgr-tab ${mgrTab==='overview'?'active':''}" onclick="setMgrTab('overview')">סקירה</button>
+    <button class="mgr-tab ${mgrTab==='agents'?'active':''}" onclick="setMgrTab('agents')">סוכנים</button>
+    <button class="mgr-tab ${mgrTab==='all'?'active':''}" onclick="setMgrTab('all')">כל הביקורים</button>
+  </div>`;
+
+  let content = '';
+  if (mgrTab==='overview') {
+    const total = tasks.length;
+    const done = tasks.filter(t=>t.status==='הושלם').length;
+    const rate = total?Math.round(done/total*100):0;
+    const circ = 2*Math.PI*34;
+    const catBars = CATS.map(cat=>{
+      const cnt = tasks.filter(t=>t.category===cat).length;
+      const pct = total?Math.round(cnt/total*100):0;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:16px">${CAT_ICON[cat]}</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:700;color:var(--t1);margin-bottom:4px">${esc(cat)}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></div>
+        <span style="font-size:13px;font-weight:800;color:var(--t2);min-width:18px;text-align:center">${cnt}</span>
+      </div>`;
+    }).join('');
+    content = `
+      <div class="card" style="padding:18px;margin-bottom:14px">
+        <div style="font-size:12px;color:var(--t3);margin-bottom:12px;font-weight:700">אחוז השלמת משימות - כל הצוות</div>
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="ring-wrap">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--s3)" stroke-width="7"/>
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--accent)" stroke-width="7"
+                stroke-dasharray="${rate*circ/100} ${circ}" stroke-linecap="round" transform="rotate(-90 40 40)"/>
+            </svg>
+            <div class="ring-text">${rate}%</div>
+          </div>
+          <div>
+            <div style="font-size:26px;font-weight:900;color:var(--t1)">${done}/${total}</div>
+            <div style="font-size:12px;color:var(--t3);margin-top:3px">משימות הושלמו</div>
+            <div style="font-size:12px;color:var(--t2);margin-top:6px">${customers.length} לקוחות · ${allUsers.filter(u=>u.role==='agent').length} סוכנים</div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">לפי קטגוריה</div>
+      <div class="card" style="padding:4px 14px 4px;margin-bottom:14px">${catBars}</div>
+      <div style="font-size:10px;font-weight:800;color:var(--t3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">לפי סטטוס</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${['פתוח','בטיפול','הושלם','בוטל'].map(s=>{
+          const cnt=tasks.filter(t=>t.status===s).length;
+          const c=STATUS_COLOR[s];
+          return `<div class="card" style="padding:14px"><div class="row" style="margin-bottom:6px"><div class="dot" style="background:${c};width:8px;height:8px"></div><span style="font-size:11px;color:var(--t3);font-weight:600">${esc(s)}</span></div><div style="font-size:24px;font-weight:900;color:${c}">${cnt}</div></div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  else if (mgrTab==='agents') {
+    const agents = allUsers.filter(u=>u.role==='agent');
+    content = agents.length===0 ? '<div style="text-align:center;padding:40px 0;color:var(--t3)">אין סוכנים רשומים</div>' :
+    agents.map((agent,i)=>{
+      const agentTasks = tasks.filter(t=>t.agentId===agent.id);
+      const agentOpen = agentTasks.filter(t=>t.status==='פתוח').length;
+      const agentDone = agentTasks.filter(t=>t.status==='הושלם').length;
+      const agentCus = customers.filter(c=>c.agentId===agent.id).length;
+      const color = getUserColor(agent.id);
+      return `<div class="agent-card">
+        <div class="agent-header">
+          <div class="agent-avatar" style="background:${color}">${getInitials(agent.name)}</div>
+          <div>
+            <div class="agent-name">${esc(agent.name)}</div>
+            <div class="agent-email">${esc(agent.email)}</div>
+          </div>
+        </div>
+        <div class="agent-stats">
+          <div class="agent-stat"><div class="agent-stat-num" style="color:var(--amber)">${agentOpen}</div><div class="agent-stat-lbl">פתוחות</div></div>
+          <div class="agent-stat"><div class="agent-stat-num" style="color:var(--green)">${agentDone}</div><div class="agent-stat-lbl">הושלמו</div></div>
+          <div class="agent-stat"><div class="agent-stat-num" style="color:var(--accent)">${agentCus}</div><div class="agent-stat-lbl">לקוחות</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  else if (mgrTab==='all') {
+    content = tasks.length===0?'<div style="text-align:center;padding:40px 0;color:var(--t3)">אין ביקורים</div>':tasks.map(taskCardHtml).join('');
+  }
+
+  document.getElementById('tab-manager').innerHTML = `
+    <div class="sec">
+      <div class="sec-title">דשבורד מנהל 👑</div>
+      ${tabs}
+      ${content}
+    </div>`;
+}
+window.setMgrTab = t=>{ mgrTab=t; renderManager(); };
+
+// ── TASK DETAIL ──────────────────────────────────
+window.openTaskDetail = function(id) {
+  const task = tasks.find(t=>t.id===id);
+  if (!task) return;
+  const sc = STATUS_COLOR[task.status]||'#6b7280';
+  const mediaHtml = task.mediaUrl ? (task.mediaType==='video'
+    ? `<video src="${esc(task.mediaUrl)}" class="tc-video" controls playsinline style="margin-bottom:16px"></video>`
+    : `<img src="${esc(task.mediaUrl)}" style="width:100%;height:180px;object-fit:cover;border-radius:var(--rsm);border:1px solid var(--border);margin-bottom:16px">`) : '';
+  const ts = task.createdAt?.toDate ? task.createdAt.toDate().toLocaleDateString('he-IL') : (task.date||'');
+  const canEdit = !isManager() || task.agentId===currentUser.uid;
+
+  document.getElementById('modals').innerHTML = `
+  <div class="overlay" id="detailOvl" onclick="closeModal('detailOvl')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-hdr">
+        <div class="row" style="gap:8px">
+          <span style="font-size:20px">${CAT_ICON[task.category]||'🔩'}</span>
+          <span class="badge" style="background:${sc}22;color:${sc}"><div class="dot" style="background:${sc}"></div>${esc(task.status)}</span>
+          ${task.priority==='גבוהה'?'<span class="badge" style="background:rgba(239,68,68,.1);color:var(--red)">🔴 דחוף</span>':''}
+        </div>
+        <button class="icon-btn" onclick="closeModal('detailOvl')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:20px;font-weight:900;color:var(--t1);margin-bottom:4px">${esc(task.customerName)}</div>
+        ${task.agentName?`<div style="font-size:12px;color:var(--t3);margin-bottom:16px">סוכן: ${esc(task.agentName)}</div>`:''}
+        ${mediaHtml}
+        <div class="detail-row"><div class="detail-label">קטגוריה</div><div class="detail-val">${esc(task.category)}</div></div>
+        <div class="detail-row"><div class="detail-label">טלפון</div><div class="detail-val">${esc(task.phone)}</div></div>
+        <div class="detail-row"><div class="detail-label">תיאור</div><div class="detail-val">${esc(task.description)}</div></div>
+        ${task.actionItems?`<div class="detail-row"><div class="detail-label">פעולות נדרשות</div><div class="tc-action" style="margin-top:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg><span>${esc(task.actionItems)}</span></div></div>`:''}
+        ${task.callSummary?`<div class="detail-row"><div class="detail-label">סיכום שיחה</div><div class="detail-val">${esc(task.callSummary)}</div></div>`:''}
+        <div class="detail-row"><div class="detail-label">תאריך</div><div class="detail-val">${ts}</div></div>
+        <div style="display:flex;gap:7px;margin-top:18px">
+          <a href="tel:${esc(task.phone)}" class="btn flex1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> חייג</a>
+          <a href="https://wa.me/${fmtPhone(task.phone)}" target="_blank" class="btn flex1 green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.524 3.655 1.435 5.163L2 22l4.917-1.41A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg> WhatsApp</a>
+        </div>
+        ${canEdit?`<div style="display:flex;gap:7px;margin-top:7px">
+          <button class="btn flex1" onclick="closeModal('detailOvl');openTaskForm('${task.id}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> ערוך</button>
+          ${task.status!=='הושלם'?`<button class="btn flex1 accent" onclick="completeTask('${task.id}');closeModal('detailOvl')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg> בוצע</button>`:''}
+          <button class="btn danger" style="padding:9px 12px" onclick="deleteTask('${task.id}');closeModal('detailOvl')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M19 6l-1 14H6L5 6M8 6V4h8v2"/></svg></button>
+        </div>`:''}
+      </div>
+    </div>
+  </div>`;
+};
+
+// ── TASK FORM ────────────────────────────────────
+window.openTaskForm = function(editId=null) {
+  const task = editId ? tasks.find(t=>t.id===editId) : null;
+  const f = task || {customerName:'',phone:'',category:'מדחסי אוויר',description:'',callSummary:'',actionItems:'',status:'פתוח',priority:'בינונית'};
+
+  const cusQuick = !editId && customers.length ? `
+    <div class="modal-sec-title">בחר לקוח קיים</div>
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none">
+      ${customers.map(c=>`<button class="chip" style="flex-shrink:0" onclick="quickSelCus('${c.id}')">${esc(c.name.split(' ').slice(0,2).join(' '))}</button>`).join('')}
+    </div>` : '';
+
+  const catChips = CATS.map(c=>`<button class="chip ${f.category===c?'active':''}" onclick="fCat('${esc(c)}')">${CAT_ICON[c]} ${esc(c)}</button>`).join('');
+  const priChips = ['גבוהה','בינונית','נמוכה'].map(p=>`<button class="chip ${f.priority===p?'active':''}" onclick="fPri('${esc(p)}')">${p==='גבוהה'?'🔴':p==='בינונית'?'🟡':'🟢'} ${esc(p)}</button>`).join('');
+  const existingMedia = f.mediaUrl ? (f.mediaType==='video'
+    ? `<video src="${esc(f.mediaUrl)}" style="width:100%;max-height:160px;border-radius:var(--rsm);margin-top:8px" controls></video>`
+    : `<img src="${esc(f.mediaUrl)}" class="img-preview">`) : '';
+
+  document.getElementById('modals').innerHTML = `
+  <div class="overlay" id="taskFormOvl" onclick="closeModal('taskFormOvl')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-hdr">
+        <div class="modal-title">${editId?'✏️ עריכת משימה':'➕ משימה חדשה'}</div>
+        <button class="icon-btn" onclick="closeModal('taskFormOvl')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        ${cusQuick}
+        <div class="modal-sec-title">פרטי לקוח</div>
+        <div class="form-group">
+          <label class="form-label">שם לקוח</label>
+          <div class="inp-wrap"><input class="form-input" id="fName" placeholder="שם החברה..." value="${esc(f.customerName)}">
+          <button class="inp-mic" onclick="listen(t=>document.getElementById('fName').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">טלפון</label>
+          <input class="form-input" id="fPhone" type="tel" placeholder="05X-XXXXXXX" value="${esc(f.phone)}">
+        </div>
+        <div class="modal-sec-title">ציוד ומשימה</div>
+        <div class="form-group">
+          <label class="form-label">סוג ציוד</label>
+          <div class="chips" style="padding:0;margin-bottom:0" id="catChips">${catChips}</div>
+        </div>
+        <div class="form-group" style="margin-top:10px">
+          <label class="form-label">עדיפות</label>
+          <div class="chips" style="padding:0;margin-bottom:0" id="priChips">${priChips}</div>
+        </div>
+        ${editId?`<div class="form-group" style="margin-top:10px"><label class="form-label">סטטוס</label><select class="form-select" id="fStatus">${STATUSES.map(s=>`<option ${f.status===s?'selected':''}>${esc(s)}</option>`).join('')}</select></div>`:''}
+        <div class="form-group" style="margin-top:10px">
+          <label class="form-label">תיאור בשטח</label>
+          <div class="textarea-wrap"><textarea class="form-textarea" id="fDesc" placeholder="תאר את התקלה / הציוד...">${esc(f.description)}</textarea>
+          <button class="textarea-mic" onclick="listen(t=>{const e=document.getElementById('fDesc');e.value=(e.value+' '+t).trim()})"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">סיכום שיחה</label>
+          <div class="textarea-wrap"><textarea class="form-textarea" id="fCall" style="min-height:70px" placeholder="מה עלה בשיחה?">${esc(f.callSummary||'')}</textarea>
+          <button class="textarea-mic" onclick="listen(t=>document.getElementById('fCall').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">מה צריך לעשות?</label>
+          <div class="inp-wrap"><input class="form-input" id="fAction" placeholder="לשלוח הצעת מחיר..." value="${esc(f.actionItems||'')}">
+          <button class="inp-mic" onclick="listen(t=>document.getElementById('fAction').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">תמונה / סרטון מהשטח</label>
+          <label class="img-upload" id="uploadLabel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="1.8" stroke-linecap="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span class="img-upload-txt">לחץ לצילום תמונה או סרטון</span>
+            <input type="file" accept="image/*,video/*" capture="environment" style="display:none" id="mediaInput" onchange="handleMedia(this,'${editId||''}')">
+          </label>
+          <div class="upload-progress" id="uploadProgress">
+            <div class="upload-label" id="uploadLabel2">מעלה...</div>
+            <div class="upload-bar-track"><div class="upload-bar-fill" id="uploadBarFill"></div></div>
+          </div>
+          ${existingMedia}
+          <div id="mediaPreviewWrap"></div>
+        </div>
+        <button class="btn primary-full" id="saveTaskBtn" onclick="saveTask('${editId||''}')">
+          ${editId?'שמור שינויים':'צור משימה'} →
+        </button>
+      </div>
+    </div>
+  </div>`;
+  window._formCat = f.category;
+  window._formPri = f.priority;
+  window._formMediaUrl = f.mediaUrl || null;
+  window._formMediaType = f.mediaType || null;
+};
+
+window.fCat = c=>{ window._formCat=c; document.querySelectorAll('#catChips .chip').forEach(el=>el.classList.toggle('active',el.textContent.includes(c))); };
+window.fPri = p=>{ window._formPri=p; document.querySelectorAll('#priChips .chip').forEach(el=>el.classList.toggle('active',el.textContent.trim().endsWith(p))); };
+window.quickSelCus = id=>{ const c=customers.find(c=>c.id===id); if(!c)return; document.getElementById('fName').value=c.name; document.getElementById('fPhone').value=c.phone; };
+
+window.handleMedia = async function(input, editId) {
+  const file = input.files[0];
+  if (!file) return;
+  const isVideo = file.type.startsWith('video/');
+  const prog = document.getElementById('uploadProgress');
+  const bar = document.getElementById('uploadBarFill');
+  const lbl = document.getElementById('uploadLabel2');
+  const saveBtn = document.getElementById('saveTaskBtn');
+  prog.style.display='block';
+  saveBtn.disabled=true;
+  showToast('מעלה קובץ...','uploading',true);
+
+  try {
+    const path = `media/${currentUser.uid}/${Date.now()}_${file.name}`;
+    const storageRef = ref(storage, path);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on('state_changed',
+      snap=>{ const pct=Math.round(snap.bytesTransferred/snap.totalBytes*100); bar.style.width=pct+'%'; lbl.textContent=`מעלה... ${pct}%`; },
+      err=>{ showToast('שגיאה בהעלאה','error'); prog.style.display='none'; saveBtn.disabled=false; },
+      async ()=>{
+        const url = await getDownloadURL(uploadTask.snapshot.ref);
+        window._formMediaUrl = url;
+        window._formMediaType = isVideo ? 'video' : 'image';
+        const wrap = document.getElementById('mediaPreviewWrap');
+        wrap.innerHTML = isVideo
+          ? `<video src="${url}" style="width:100%;max-height:160px;border-radius:var(--rsm);margin-top:8px" controls playsinline></video>`
+          : `<img src="${url}" class="img-preview">`;
+        prog.style.display='none';
+        saveBtn.disabled=false;
+        hideToast();
+        showToast('הקובץ הועלה בהצלחה ✓');
+      }
+    );
+  } catch(e) {
+    showToast('שגיאה','error');
+    prog.style.display='none';
+    saveBtn.disabled=false;
+  }
+};
+
+window.saveTask = async function(editId) {
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  if (!name) { showToast('נא להזין שם לקוח','error'); return; }
+
+  const data = {
+    customerName: name,
+    phone,
+    category: window._formCat||'מדחסי אוויר',
+    priority: window._formPri||'בינונית',
+    description: document.getElementById('fDesc').value.trim(),
+    callSummary: document.getElementById('fCall').value.trim(),
+    actionItems: document.getElementById('fAction').value.trim(),
+    mediaUrl: window._formMediaUrl||null,
+    mediaType: window._formMediaType||null,
+    agentId: currentUser.uid,
+    agentName: currentProfile?.name||'',
+  };
+
+  const btn = document.getElementById('saveTaskBtn');
+  btn.innerHTML='<div class="spinner"></div>';
+  btn.disabled=true;
+
+  try {
+    if (editId) {
+      data.status = document.getElementById('fStatus')?.value||'פתוח';
+      await updateDoc(doc(db,'tasks',editId), data);
+      showToast('משימה עודכנה ✓');
+    } else {
+      data.status='פתוח';
+      data.createdAt=serverTimestamp();
+      await addDoc(collection(db,'tasks'), data);
+      showToast('משימה נוצרה ✓');
+    }
+    closeModal('taskFormOvl');
+  } catch(e) {
+    showToast('שגיאה בשמירה','error');
+    btn.innerHTML=editId?'שמור שינויים →':'צור משימה →';
+    btn.disabled=false;
+  }
+};
+
+// ── CUSTOMER FORM ────────────────────────────────
+window.openCustomerForm = function(editId=null) {
+  const c = editId ? customers.find(c=>c.id===editId) : null;
+  const f = c||{name:'',phone:'',email:'',address:'',notes:''};
+  document.getElementById('modals').innerHTML = `
+  <div class="overlay" id="cusFormOvl" onclick="closeModal('cusFormOvl')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <div class="modal-hdr">
+        <div class="modal-title">${editId?'✏️ עריכת לקוח':'➕ לקוח חדש'}</div>
+        <button class="icon-btn" onclick="closeModal('cusFormOvl')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">שם החברה</label>
+          <div class="inp-wrap"><input class="form-input" id="cfName" placeholder="שם החברה" value="${esc(f.name)}">
+          <button class="inp-mic" onclick="listen(t=>document.getElementById('cfName').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button></div>
+        </div>
+        <div class="form-group"><label class="form-label">טלפון</label><input class="form-input" id="cfPhone" type="tel" placeholder="05X-XXXXXXX" value="${esc(f.phone)}"></div>
+        <div class="form-group"><label class="form-label">אימייל</label><input class="form-input" id="cfEmail" type="email" placeholder="email@company.co.il" value="${esc(f.email||'')}" style="direction:ltr"></div>
+        <div class="form-group"><label class="form-label">כתובת</label><input class="form-input" id="cfAddr" placeholder="עיר, רחוב" value="${esc(f.address||'')}"></div>
+        <div class="form-group"><label class="form-label">הערות</label>
+          <div class="textarea-wrap"><textarea class="form-textarea" id="cfNotes" style="min-height:80px" placeholder="מידע חשוב על הלקוח...">${esc(f.notes||'')}</textarea>
+          <button class="textarea-mic" onclick="listen(t=>document.getElementById('cfNotes').value=t)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><path d="M12 19v4M8 23h8"/></svg></button></div>
+        </div>
+        <button class="btn primary-full" onclick="saveCustomer('${editId||''}')">
+          ${editId?'שמור שינויים':'הוסף לקוח'} →
+        </button>
+      </div>
+    </div>
+  </div>`;
+};
+
+window.saveCustomer = async function(editId) {
+  const name = document.getElementById('cfName').value.trim();
+  if (!name) { showToast('נא להזין שם','error'); return; }
+  const data = {
+    name, phone: document.getElementById('cfPhone').value.trim(),
+    email: document.getElementById('cfEmail').value.trim(),
+    address: document.getElementById('cfAddr').value.trim(),
+    notes: document.getElementById('cfNotes').value.trim(),
+    agentId: currentUser.uid,
+    agentName: currentProfile?.name||'',
+  };
+  try {
+    if (editId) { await updateDoc(doc(db,'customers',editId), data); showToast('לקוח עודכן ✓'); }
+    else { data.createdAt=serverTimestamp(); await addDoc(collection(db,'customers'), data); showToast('לקוח נוסף ✓'); }
+    closeModal('cusFormOvl');
+  } catch(e) { showToast('שגיאה','error'); }
+};
+
+// ── ACTIONS ──────────────────────────────────────
+window.completeTask = async function(id) {
+  try { await updateDoc(doc(db,'tasks',id),{status:'הושלם'}); showToast('משימה הושלמה ✓'); }
+  catch(e) { showToast('שגיאה','error'); }
+};
+
+window.deleteTask = async function(id) {
+  if (!confirm('למחוק משימה זו?')) return;
+  try { await deleteDoc(doc(db,'tasks',id)); showToast('נמחק'); }
+  catch(e) { showToast('שגיאה','error'); }
+};
+
+window.closeModal = function(id) {
+  document.getElementById(id)?.remove();
+};
+
+// ── INIT ─────────────────────────────────────────
+initSpeech();
+
+</script>
+</body>
+</html>
